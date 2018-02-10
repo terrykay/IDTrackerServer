@@ -1,0 +1,45 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package session;
+
+import entity.Event;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+/**
+ *
+ * @author tezk
+ */
+@Stateless
+public class EventFacade extends AbstractFacade<Event> {
+
+    @PersistenceContext(unitName = "IDTrackerServerPU")
+    private EntityManager em;
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return em;
+    }
+
+    public EventFacade() {
+        super(Event.class);
+    }
+    
+    public Event findByID(Integer id) {
+        Query q = em.createNamedQuery("Event.findById");
+        q.setParameter("id", id);
+        Event who = null;
+        try {
+            who = (Event) q.getSingleResult();
+        } catch (Exception e) {
+            // Couldn't find
+            return null;
+        }
+        return who;
+    }
+}
