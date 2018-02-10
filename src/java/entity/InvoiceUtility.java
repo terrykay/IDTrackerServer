@@ -20,6 +20,7 @@ public class InvoiceUtility {
         InvoiceTO newInvoice = new InvoiceTO();
 
         newInvoice.setInvoicenumber(anInvoice.getInvoicenumber());
+        newInvoice.setType(anInvoice.getInvoiceType());
         newInvoice.setAmount(anInvoice.getAmount());
         newInvoice.setDuedate(anInvoice.getDuedate());
         newInvoice.setIssuedate(anInvoice.getIssuedate());
@@ -28,6 +29,7 @@ public class InvoiceUtility {
        //     for (Membershipcharge eachMembershipcharge : anInvoice.getMembershipchargeCollection()) 
        //         newInvoice.getMembershipchargeCollection().add(eachMembershipcharge.getMembershipId().getId());
         
+        newInvoice.setReceiptCollection(ReceiptUtility.getAsTO(anInvoice.getReceiptCollection()));
         newInvoice.setNotes(anInvoice.getNotes());
 
         return newInvoice;
@@ -48,6 +50,7 @@ public class InvoiceUtility {
             return newInvoice;
 
         newInvoice.setInvoicenumber(anInvoice.getInvoicenumber());
+        newInvoice.setInvoiceType(anInvoice.getType());
         newInvoice.setAmount(anInvoice.getAmount());
         newInvoice.setDuedate(anInvoice.getDuedate());
         newInvoice.setIssuedate(anInvoice.getIssuedate());
@@ -56,6 +59,7 @@ public class InvoiceUtility {
         newInvoice.setMembershipchargeCollection(new HashSet());
         newInvoice.setCustomerIsAttendingEventCollection(new HashSet());
         newInvoice.setNotes(anInvoice.getNotes());
+        newInvoice.setReceiptCollection(ReceiptUtility.getAsEntity(anInvoice.getReceiptCollection()));
 
         return newInvoice;
     }
