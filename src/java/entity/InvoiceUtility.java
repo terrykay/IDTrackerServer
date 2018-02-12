@@ -29,6 +29,7 @@ public class InvoiceUtility {
        //     for (Membershipcharge eachMembershipcharge : anInvoice.getMembershipchargeCollection()) 
        //         newInvoice.getMembershipchargeCollection().add(eachMembershipcharge.getMembershipId().getId());
         
+       System.out.println("Getting invoice "+anInvoice+" receipts? "+anInvoice.getReceiptCollection().size());
         newInvoice.setReceiptCollection(ReceiptUtility.getAsTO(anInvoice.getReceiptCollection()));
         newInvoice.setNotes(anInvoice.getNotes());
 
@@ -59,6 +60,10 @@ public class InvoiceUtility {
         newInvoice.setMembershipchargeCollection(new HashSet());
         newInvoice.setCustomerIsAttendingEventCollection(new HashSet());
         newInvoice.setNotes(anInvoice.getNotes());
+        if (anInvoice.getReceiptCollection() == null)
+            System.out.println("receipts == null");
+        else
+            System.out.println("Setting receipts on invoice entity "+anInvoice.getReceiptCollection().size());
         newInvoice.setReceiptCollection(ReceiptUtility.getAsEntity(anInvoice.getReceiptCollection()));
 
         return newInvoice;

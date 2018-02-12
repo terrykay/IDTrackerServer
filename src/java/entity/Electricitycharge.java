@@ -140,6 +140,7 @@ public class Electricitycharge implements Serializable {
     }
 
     public void setMembershipId(Membership membershipId) {
+        System.out.println("ElectricitCharge.setMemId : "+membershipId);
         this.membershipId = membershipId;
     }
 

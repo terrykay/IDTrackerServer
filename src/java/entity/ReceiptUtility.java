@@ -20,6 +20,7 @@ public class ReceiptUtility {
     public static ReceiptTO getAsTO(Receipt aReceipt) {
         ReceiptTO newReceipt = new ReceiptTO();
 
+        System.out.println("ReceiptUtility - Adding receipt");
         newReceipt.setReceiptnumber(aReceipt.getReceiptnumber());
         newReceipt.setAmount(aReceipt.getAmount());
         newReceipt.setDate(aReceipt.getDate());
@@ -45,6 +46,7 @@ public class ReceiptUtility {
     }
 
     public static Receipt getAsEntity(ReceiptTO aReceipt) {
+        System.out.println("ReceiptUtility - Receipt as entity");
         Receipt newReceipt = new Receipt();
         if (aReceipt == null) {
             return newReceipt;

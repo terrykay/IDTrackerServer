@@ -38,6 +38,10 @@ public class VisitUtility {
  
         
     public static Visit getAsEntity(VisitTO aVisit) {
+        
+        System.out.println("VisitTO : "+aVisit.getId());
+        System.out.println("VisitTO : "+aVisit.getCustomerId());
+        
         Visit newVisit = new Visit();
         if (aVisit==null) 
             return newVisit;

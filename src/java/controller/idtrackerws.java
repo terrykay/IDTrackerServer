@@ -16,12 +16,18 @@ import entity.CaravanUtility;
 import entity.ChildUtility;
 import entity.Customer;
 import entity.CustomerUtility;
+import entity.Electricitycharge;
 import entity.ImageUtility;
+import entity.Invoice;
 import entity.Membership;
+import entity.Receipt;
 import entity.Refuse;
+import entity.Visit;
+import entity.VisitUtility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.ejb.EJB;
@@ -37,8 +43,10 @@ import session.CaravanFacade;
 import session.ChildFacade;
 import session.CustomerFacade;
 import session.ImageFacade;
+import session.ReceiptFacade;
 import session.SessionFacade;
 import session.UserFacade;
+import session.VisitFacade;
 import userIdEntity.Audit;
 import userIdEntity.Session;
 import userIdEntity.User;
@@ -73,6 +81,10 @@ public class idtrackerws {
     private UserFacade userFacade;
     @EJB
     private AuditFacade auditFacade;
+    @EJB
+    private ReceiptFacade receiptFacade;
+    @EJB
+    private VisitFacade visitFacade;
 
     /**
      * Web service operation
@@ -97,7 +109,6 @@ public class idtrackerws {
         return CustomerUtility.getAsTO(customerList);
     }
 
-    
     @WebMethod(operationName = "getDisplayCustomers")
     public Collection<CustomerTO> getDisplayCustomers(@WebParam(name = "sessionID") String sessionID) {
         Session session = checkSession(sessionID);
@@ -114,7 +125,7 @@ public class idtrackerws {
         addAuditData(session, "Customer list retrieved by " + session.getUserId());
         return CustomerUtility.getAsDisplayTO(customerList);
     }
-    
+
     /**
      * Web service operation
      *
@@ -124,16 +135,22 @@ public class idtrackerws {
      */
     @WebMethod(operationName = "saveCustomer")
     public String saveCustomer(@WebParam(name = "aCustomer") CustomerTO toCustomer, @WebParam(name = "sessionID") String sessionID) {
+        System.out.println("Saving customer");
         Session session = checkSession(sessionID);
         if (session == null) {
             return "session invalid";
         }
+        // Is address set? If not, might be trying to persist from getDisplayCustomers
+        if (toCustomer.getAddressId() == null) {
+            System.err.println("Received incomplete customer to persist : " + toCustomer.getId() + ", " + toCustomer.getForename() + " " + toCustomer.getSurname());
+            return "Invalid customer";
+        }
         final Customer customer = CustomerUtility.getAsEntity(toCustomer);
         Customer partner = null;
         if (customer.getForename() == null) {
-            return null;
+            return "Null forename";
         }
-        if (toCustomer.getRefuse()!=null) {
+        if (toCustomer.getRefuse() != null) {
             toCustomer.getRefuse().setCustomerId(toCustomer.getId());
         }
         // Partner ID set? We need to find and link as we only get ID
@@ -144,18 +161,50 @@ public class idtrackerws {
             }
         }
         // if passed customer is member and linked Caravan has id of -1, needs removing
+        System.out.println("check for membership = " + toCustomer.getMembership());
         if (toCustomer.getMembership() != null) {
             if (toCustomer.getMembership().getCaravanCollection() != null
                     && toCustomer.getMembership().getCaravanCollection().size() > 0) {
                 customer.getMembershipId().getCaravanCollection().stream().forEach(e -> {
                     e.setMembershipId(customer.getMembershipId());
                 });
-                if (toCustomer.getMembership() != null && 
-                        toCustomer.getMembership().getId() !=null && 
-                        toCustomer.getMembership().getId() == -1) {
+                if (toCustomer.getMembership() != null
+                        && toCustomer.getMembership().getId() != null
+                        && toCustomer.getMembership().getId() == -1) {
                     Caravan vanRemove = (Caravan) customer.getMembershipId().getCaravanCollection().toArray()[0];
                     vanRemove.setMembershipId(customer.getMembershipId());
                     caravanFacade.remove(vanRemove);
+                }
+            }
+            // Any electricity charges
+            System.out.println("Set membership for charges - value " + customer.getMembershipId().getElectricitychargeCollection());
+            System.out.println("Set membership for charges - empty? " + customer.getMembershipId().getElectricitychargeCollection().isEmpty());
+
+            if (customer.getMembershipId() != null
+                    && !customer.getMembershipId().getElectricitychargeCollection().isEmpty()) {
+                Iterator<Electricitycharge> i = customer.getMembershipId().getElectricitychargeCollection().iterator();
+                while (i.hasNext()) {
+                    Electricitycharge eachCharge = i.next();
+                    eachCharge.setMembershipId(customer.getMembershipId());
+
+                    Iterator<Invoice> j = eachCharge.getInvoiceCollection().iterator();
+                    while (j.hasNext()) {
+                        Invoice eachInvoice = j.next();
+                        if (eachInvoice.getElectricitychargeCollection() == null) {
+                            eachInvoice.setElectricitychargeCollection(new ArrayList());
+                        }
+                        eachInvoice.getElectricitychargeCollection().add(eachCharge);
+
+                        Iterator<Receipt> k = eachInvoice.getReceiptCollection().iterator();
+                        while (k.hasNext()) {
+                            Receipt eachReceipt = k.next();
+                            eachReceipt.setInvoiceInvoicenumber(eachInvoice);
+                            receiptFacade.edit(eachReceipt);
+                        }
+                    }
+
+                    System.out.println("invoices = " + eachCharge.getInvoiceCollection().size());
+                    System.out.println("receipts = " + ((Invoice) (eachCharge.getInvoiceCollection().toArray()[0])).getReceiptCollection().size());
                 }
             }
         }
@@ -167,7 +216,7 @@ public class idtrackerws {
                 Refuse tempRefuse = customer.getRefuse();
                 customer.setRefuse(null);
                 customerFacade.create(customer);
-                if (tempRefuse!=null) {
+                if (tempRefuse != null) {
                     tempRefuse.setCustomerId(customer.getId());
                     customer.setRefuse(tempRefuse);
                     customerFacade.edit(customer);
@@ -186,23 +235,29 @@ public class idtrackerws {
                 }
                 if (!toCustomer.getImageDeleteCollection().isEmpty()) {
                     for (ImageTO eachImage : toCustomer.getImageDeleteCollection()) {
-                        if (eachImage.getId()!=null && eachImage.getId()>0) {
+                        if (eachImage.getId() != null && eachImage.getId() > 0) {
                             imageFacade.remove(ImageUtility.getAsEntity(eachImage));
                             imageHandlerBean.removeImage(eachImage.getUrl(), toCustomer.getId().toString());
                         }
                     }
                 }
+                if (!toCustomer.getVisitDeleteCollection().isEmpty()) {
+                    toCustomer.getVisitDeleteCollection().stream().forEach(eachVisit -> {
+                        Visit asEntity = VisitUtility.getAsEntity(eachVisit);
+                        asEntity.setCustomerId(customer);
+                        visitFacade.remove(asEntity);
+                    });
+                }
                 // Saving customer with an updated Refuse field is causing errors? 
                 Refuse refuse = customer.getRefuse();
-                if (customer.getRefuse()!=null) {
+                if (customer.getRefuse() != null) {
                     //customer.setRefuse(null);
                     customer.getRefuse().setCustomer(customer);
                     customer.getRefuse().setCustomerId(customer.getId());
                 }
-                   // customer.getRefuse().setCustomer(customer);
+                // customer.getRefuse().setCustomer(customer);
                 customerFacade.edit(customer);
-                if (refuse!=null) {
-                    System.err.println("Refuse : "+refuse+", "+refuse.toString()+" c "+refuse.getCustomer()+" i "+refuse.getCustomerId());
+                if (refuse != null) {
                     customer.setRefuse(refuse);
                     customerFacade.edit(customer);
                 }
@@ -211,7 +266,7 @@ public class idtrackerws {
             //       customerValidatorBean.validate(customer);
         } catch (EJBException e) {
             System.err.println("Problem saving ejb : " + e.getMessage());
-            return null;
+            return "Problem saving";
         }
         Customer verifyCustomer = customerFacade.findByID(Integer.parseInt(value));
 
@@ -244,14 +299,17 @@ public class idtrackerws {
     @WebMethod(operationName = "getCustomerByID")
     public CustomerTO getCustomerByID(@WebParam(name = "customerID") int customerID, @WebParam(name = "sessionID") String sessionID) {
         Session session = checkSession(sessionID);
+        System.out.println("getById");
         if (session == null) {
             return null;
         }
         Customer customer = customerFacade.findByID(customerID);
         if (customer != null) {
+            System.out.println("getById : " + customer);
             addAuditData(session, "Found by ID : " + customerID);
             return CustomerUtility.getAsTO(customer);
         } else {
+            System.out.println("getById null");
             return null;
         }
     }
