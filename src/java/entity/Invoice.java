@@ -77,7 +77,7 @@ public class Invoice implements Serializable {
     private Collection<Electricitycharge> electricitychargeCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoiceInvoicenumber")
     private Collection<Receipt> receiptCollection;
-    @OneToMany(mappedBy = "invoicenumber")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoicenumber")
     private Collection<CustomerIsAttendingEvent> customerIsAttendingEventCollection;
 
     public Invoice() {

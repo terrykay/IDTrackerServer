@@ -71,7 +71,10 @@ public class InvoiceUtility {
 
     public static Collection<Invoice> getAsEntity(Collection<InvoiceTO> invoices) {
         Collection<Invoice> newInvoices = new ArrayList();
-
+        
+        if (invoices == null) {
+            System.out.println("invoice collection is null - InvoiceUtility");
+        } else
         for (InvoiceTO eachInvoice : invoices) {
             newInvoices.add(getAsEntity(eachInvoice));
         }

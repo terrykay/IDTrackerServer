@@ -56,6 +56,7 @@ public class CustomerUtility {
         List <VisitTO> visitList = new ArrayList();
         visitList.addAll(VisitUtility.getAsTO(new ArrayList(aCustomer.getVisitCollection())));
         newCustomer.setVisitCollection(visitList);
+        newCustomer.setNotificationPreferences(NotificationPreferencesUtility.getAsTO(aCustomer.getNotificationPreferences()));
         
         return newCustomer;
     }
@@ -134,6 +135,14 @@ public class CustomerUtility {
             eachVisist.setCustomerId(newCustomer);
         }
         newCustomer.setVisitCollection(visitList);
+        newCustomer.setNotificationPreferences(NotificationPreferencesUtility.getAsEntity(aCustomer.getNotificationPreferences()));
+        if (newCustomer.getNotificationPreferences() != null)
+            newCustomer.getNotificationPreferences().setCustomer(newCustomer);
+        else {
+            NotificationPreferences notificationPreferences = new NotificationPreferences();
+            notificationPreferences.setCustomer(newCustomer);
+            newCustomer.setNotificationPreferences(notificationPreferences);
+        }
         
         return newCustomer;
     }

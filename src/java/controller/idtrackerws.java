@@ -20,6 +20,7 @@ import entity.Electricitycharge;
 import entity.ImageUtility;
 import entity.Invoice;
 import entity.Membership;
+import entity.NotificationPreferences;
 import entity.Receipt;
 import entity.Refuse;
 import entity.Visit;
@@ -43,6 +44,7 @@ import session.CaravanFacade;
 import session.ChildFacade;
 import session.CustomerFacade;
 import session.ImageFacade;
+import session.InvoiceFacade;
 import session.ReceiptFacade;
 import session.SessionFacade;
 import session.UserFacade;
@@ -85,6 +87,8 @@ public class idtrackerws {
     private ReceiptFacade receiptFacade;
     @EJB
     private VisitFacade visitFacade;
+    @EJB
+    private InvoiceFacade invoiceFacade;
 
     /**
      * Web service operation
@@ -161,7 +165,6 @@ public class idtrackerws {
             }
         }
         // if passed customer is member and linked Caravan has id of -1, needs removing
-        System.out.println("check for membership = " + toCustomer.getMembership());
         if (toCustomer.getMembership() != null) {
             if (toCustomer.getMembership().getCaravanCollection() != null
                     && toCustomer.getMembership().getCaravanCollection().size() > 0) {
@@ -177,9 +180,7 @@ public class idtrackerws {
                 }
             }
             // Any electricity charges
-            System.out.println("Set membership for charges - value " + customer.getMembershipId().getElectricitychargeCollection());
-            System.out.println("Set membership for charges - empty? " + customer.getMembershipId().getElectricitychargeCollection().isEmpty());
-
+ 
             if (customer.getMembershipId() != null
                     && !customer.getMembershipId().getElectricitychargeCollection().isEmpty()) {
                 Iterator<Electricitycharge> i = customer.getMembershipId().getElectricitychargeCollection().iterator();
@@ -199,12 +200,11 @@ public class idtrackerws {
                         while (k.hasNext()) {
                             Receipt eachReceipt = k.next();
                             eachReceipt.setInvoiceInvoicenumber(eachInvoice);
-                            receiptFacade.edit(eachReceipt);
+               //             receiptFacade.edit(eachReceipt);
                         }
+               //         invoiceFacade.edit(eachInvoice);
                     }
 
-                    System.out.println("invoices = " + eachCharge.getInvoiceCollection().size());
-                    System.out.println("receipts = " + ((Invoice) (eachCharge.getInvoiceCollection().toArray()[0])).getReceiptCollection().size());
                 }
             }
         }
@@ -214,7 +214,7 @@ public class idtrackerws {
         try {
             if (customer.getId() == null || customer.getId() == 0) {
                 Refuse tempRefuse = customer.getRefuse();
-                customer.setRefuse(null);
+            //    customer.setRefuse(null);
                 customerFacade.create(customer);
                 if (tempRefuse != null) {
                     tempRefuse.setCustomerId(customer.getId());
@@ -256,6 +256,10 @@ public class idtrackerws {
                     customer.getRefuse().setCustomerId(customer.getId());
                 }
                 // customer.getRefuse().setCustomer(customer);
+                if (customer.getNotificationPreferences() != null) {
+                    customer.getNotificationPreferences().setCustomer(customer);
+                    customer.getNotificationPreferences().setCustomerId(customer.getId());
+                }
                 customerFacade.edit(customer);
                 if (refuse != null) {
                     customer.setRefuse(refuse);
@@ -266,6 +270,7 @@ public class idtrackerws {
             //       customerValidatorBean.validate(customer);
         } catch (EJBException e) {
             System.err.println("Problem saving ejb : " + e.getMessage());
+            e.printStackTrace();
             return "Problem saving";
         }
         Customer verifyCustomer = customerFacade.findByID(Integer.parseInt(value));
@@ -328,10 +333,21 @@ public class idtrackerws {
             return false;
         }
         try {
-            Customer whoCustomer = CustomerUtility.getAsEntity(who);
+            Customer whoCustomer = customerFacade.findByID(who.getId());
             if (who.getPartnerId() != null && who.getPartnerId() != 0) {
                 Customer partner = customerFacade.findByID(who.getPartnerId());
                 if (partner != null) {
+                    if (whoCustomer.getAddressId().getId() == partner.getAddressId().getId()) {
+                        whoCustomer.getAddressId().getCustomerCollection().remove(whoCustomer);
+                        whoCustomer.setAddressId(null);
+                    } else {
+                        addressFacade.remove(whoCustomer.getAddressId());
+                        whoCustomer.setAddressId(null);
+                    }
+                    whoCustomer.getChildCollection().stream().forEach((child) -> {
+                        child.getCustomerCollection().remove(whoCustomer);
+                    });
+                    whoCustomer.getChildCollection().clear();
                     partner.setPartnerId(null);
                     customerFacade.edit(partner);
                 }
@@ -357,6 +373,10 @@ public class idtrackerws {
         Session session = checkSession(sessionID);
         if (session == null) {
             return null;
+        }
+        if (addressTO == null) {
+            System.err.println("saveAddress - null addressTo passed");
+            return 0;
         }
         //TODO write your implementation code here:
         Address address = AddressUtility.getAsEntity(addressTO);
