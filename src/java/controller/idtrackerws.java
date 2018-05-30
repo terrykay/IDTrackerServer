@@ -146,12 +146,13 @@ public class idtrackerws {
         }
         // Is address set? If not, might be trying to persist from getDisplayCustomers
         if (toCustomer.getAddressId() == null) {
-            System.err.println("Received incomplete customer to persist : " + toCustomer.getId() + ", " + toCustomer.getForename() + " " + toCustomer.getSurname());
+            System.err.println("Received incomplete customer to persist (no address) : " + toCustomer.getId() + ", " + toCustomer.getForename() + " " + toCustomer.getSurname());
             return "Invalid customer";
         }
         final Customer customer = CustomerUtility.getAsEntity(toCustomer);
         Customer partner = null;
         if (customer.getForename() == null) {
+            System.err.println("Missing forename");
             return "Null forename";
         }
         if (toCustomer.getRefuse() != null) {
@@ -214,11 +215,19 @@ public class idtrackerws {
         try {
             if (customer.getId() == null || customer.getId() == 0) {
                 Refuse tempRefuse = customer.getRefuse();
-            //    customer.setRefuse(null);
+                NotificationPreferences np = customer.getNotificationPreferences();
+                customer.setRefuse(null);
+                customer.setNotificationPreferences(null);
                 customerFacade.create(customer);
                 if (tempRefuse != null) {
                     tempRefuse.setCustomerId(customer.getId());
                     customer.setRefuse(tempRefuse);
+                    customerFacade.edit(customer);
+                }
+                if (np != null) {
+                    np.setCustomer(customer);
+                    np.setCustomerId(customer.getId());
+                    customer.setNotificationPreferences(np);
                     customerFacade.edit(customer);
                 }
             } else {
@@ -554,5 +563,15 @@ public class idtrackerws {
         } else {
             return "failed : customer not found";
         }
+    }
+
+    /**
+     * Web service operation
+     */
+    @WebMethod(operationName = "logout")
+    public Boolean logout(@WebParam(name = "sessionId") String sessionId) {
+        //TODO write your implementation code here:
+        sessionFacade.remove(sessionFacade.findBySessionId(sessionId));
+        return true;
     }
 }

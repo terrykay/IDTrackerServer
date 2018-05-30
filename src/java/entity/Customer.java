@@ -51,7 +51,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Customer.findByGiftAid", query = "SELECT c FROM Customer c WHERE c.giftAid = :giftAid")})
 public class Customer implements Serializable {
 
-  //  @OneToOne(cascade = CascadeType.ALL, mappedBy = "customer", optional = true)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "customer", optional = true)
     private NotificationPreferences notificationPreferences;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
