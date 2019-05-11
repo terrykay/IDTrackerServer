@@ -6,7 +6,6 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,10 +15,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -27,13 +23,15 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author tezk
  */
 @Entity
-@Table(name = "refuse")
+@Table(name = "notification_preferences")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Refuse.findAll", query = "SELECT r FROM Refuse r"),
-    @NamedQuery(name = "Refuse.findByCustomerId", query = "SELECT r FROM Refuse r WHERE r.customerId = :customerId"),
-    @NamedQuery(name = "Refuse.findByDate", query = "SELECT r FROM Refuse r WHERE r.date = :date")})
-public class Refuse implements Serializable {
+    @NamedQuery(name = "NotificationPreferences.findAll", query = "SELECT n FROM NotificationPreferences n"),
+    @NamedQuery(name = "NotificationPreferences.findByCustomerId", query = "SELECT n FROM NotificationPreferences n WHERE n.customerId = :customerId"),
+    @NamedQuery(name = "NotificationPreferences.findBySms", query = "SELECT n FROM NotificationPreferences n WHERE n.sms = :sms"),
+    @NamedQuery(name = "NotificationPreferences.findByPost", query = "SELECT n FROM NotificationPreferences n WHERE n.post = :post"),
+    @NamedQuery(name = "NotificationPreferences.findByEmail", query = "SELECT n FROM NotificationPreferences n WHERE n.email = :email")})
+public class NotificationPreferences implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -41,17 +39,20 @@ public class Refuse implements Serializable {
     @NotNull
     @Column(name = "customer_id")
     private Integer customerId;
-    @Temporal(TemporalType.DATE)
-    @Column(name = "date")
-    private Date date;
+    @Column(name = "sms")
+    private Boolean sms;
+    @Column(name = "post")
+    private Boolean post;
+    @Column(name = "email")
+    private Boolean email;
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     @OneToOne(optional = false)
     private Customer customer;
 
-    public Refuse() {
+    public NotificationPreferences() {
     }
 
-    public Refuse(Integer customerId) {
+    public NotificationPreferences(Integer customerId) {
         this.customerId = customerId;
     }
 
@@ -63,12 +64,28 @@ public class Refuse implements Serializable {
         this.customerId = customerId;
     }
 
-    public Date getDate() {
-        return date;
+    public Boolean getSms() {
+        return sms;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setSms(Boolean sms) {
+        this.sms = sms;
+    }
+
+    public Boolean getPost() {
+        return post;
+    }
+
+    public void setPost(Boolean post) {
+        this.post = post;
+    }
+
+    public Boolean getEmail() {
+        return email;
+    }
+
+    public void setEmail(Boolean email) {
+        this.email = email;
     }
 
     public Customer getCustomer() {
@@ -89,10 +106,10 @@ public class Refuse implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Refuse)) {
+        if (!(object instanceof NotificationPreferences)) {
             return false;
         }
-        Refuse other = (Refuse) object;
+        NotificationPreferences other = (NotificationPreferences) object;
         if ((this.customerId == null && other.customerId != null) || (this.customerId != null && !this.customerId.equals(other.customerId))) {
             return false;
         }
@@ -101,7 +118,7 @@ public class Refuse implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Refuse[ customerId=" + customerId + " ]";
+        return "entity.NotificationPreferences[ customerId=" + customerId + " ]";
     }
     
 }

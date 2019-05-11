@@ -26,7 +26,8 @@ public class ElectricitychargeUtility {
         newCharge.setCharge(aCharge.getCharge());
         // link to Membership is controlled by Membership, we only use the id number
         newCharge.setMembershipId(aCharge.getMembershipId().getId());
-
+        newCharge.setInvoiceList(InvoiceUtility.getAsTO(aCharge.getInvoiceCollection()));
+        
         return newCharge;
     }
 
@@ -48,7 +49,8 @@ public class ElectricitychargeUtility {
         newCharge.setCharge(aCharge.getCharge());
         // link to Membership is controlled by Membership - client must retrieve if needed
         //newCharge.setMembershipId(MembershipUtility.getAsEntity(aCharge.getMembershipId()));
-
+        newCharge.setInvoiceCollection(InvoiceUtility.getAsEntity(aCharge.getInvoiceList()));
+        
         return newCharge;
     }
 

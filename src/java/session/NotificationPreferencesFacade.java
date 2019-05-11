@@ -5,7 +5,7 @@
  */
 package session;
 
-import entity.Invoice;
+import entity.NotificationPreferences;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -15,7 +15,7 @@ import javax.persistence.PersistenceContext;
  * @author tezk
  */
 @Stateless
-public class InvoiceFacade extends AbstractFacade<Invoice> {
+public class NotificationPreferencesFacade extends AbstractFacade<NotificationPreferences> {
 
     @PersistenceContext(unitName = "IDTrackerServerPU")
     private EntityManager em;
@@ -25,8 +25,8 @@ public class InvoiceFacade extends AbstractFacade<Invoice> {
         return em;
     }
 
-    public InvoiceFacade() {
-        super(Invoice.class);
+    public NotificationPreferencesFacade() {
+        super(NotificationPreferences.class);
     }
     
 }
