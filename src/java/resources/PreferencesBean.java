@@ -41,7 +41,6 @@ public class PreferencesBean implements Serializable {
     public String getPathProperty() {
         Preferences prefs = Preferences.userNodeForPackage(PreferencesBean.class);
         pathProperty = prefs.get(PATH, "");
-        System.err.println("Path get : "+pathProperty);
         return pathProperty;
     }
     

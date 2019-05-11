@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Visit.findAll", query = "SELECT v FROM Visit v"),
     @NamedQuery(name = "Visit.findByIdvisit", query = "SELECT v FROM Visit v WHERE v.idvisit = :idvisit"),
     @NamedQuery(name = "Visit.findByStartDate", query = "SELECT v FROM Visit v WHERE v.startDate = :startDate"),
+    @NamedQuery(name = "Visit.findByStartBetween", query = "SELECT v FROM Visit v WHERE v.startDate BETWEEN :startDate AND :endDate"),
     @NamedQuery(name = "Visit.findByEndDate", query = "SELECT v FROM Visit v WHERE v.endDate = :endDate")})
 public class Visit implements Serializable {
 

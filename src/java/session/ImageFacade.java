@@ -5,10 +5,14 @@
  */
 package session;
 
+import entity.Customer;
 import entity.Image;
+import java.util.Collection;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -38,4 +42,10 @@ public class ImageFacade extends AbstractFacade<Image> {
         super(Image.class);
     }
     
+    public Collection<Image> findByType(char type) {
+        Query q = em.createNamedQuery("Image.findByType");
+        q.setParameter("type", type);
+        List<Image> results = q.getResultList();
+        return results;
+    }
 }
