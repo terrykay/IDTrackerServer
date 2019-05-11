@@ -48,6 +48,7 @@ public class ImageUtility {
 
         newImage.setDetails(anImage.getDetails());
         // TODO : Load image from URL
+        System.out.println("ImageUtility : image = "+newImage);
         return newImage;
     }
 

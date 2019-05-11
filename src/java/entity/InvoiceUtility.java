@@ -20,6 +20,7 @@ public class InvoiceUtility {
         InvoiceTO newInvoice = new InvoiceTO();
 
         newInvoice.setInvoicenumber(anInvoice.getInvoicenumber());
+        newInvoice.setType(anInvoice.getInvoiceType());
         newInvoice.setAmount(anInvoice.getAmount());
         newInvoice.setDuedate(anInvoice.getDuedate());
         newInvoice.setIssuedate(anInvoice.getIssuedate());
@@ -28,6 +29,8 @@ public class InvoiceUtility {
        //     for (Membershipcharge eachMembershipcharge : anInvoice.getMembershipchargeCollection()) 
        //         newInvoice.getMembershipchargeCollection().add(eachMembershipcharge.getMembershipId().getId());
         
+       System.out.println("Getting invoice "+anInvoice+" receipts? "+anInvoice.getReceiptCollection().size());
+        newInvoice.setReceiptCollection(ReceiptUtility.getAsTO(anInvoice.getReceiptCollection()));
         newInvoice.setNotes(anInvoice.getNotes());
 
         return newInvoice;
@@ -48,6 +51,7 @@ public class InvoiceUtility {
             return newInvoice;
 
         newInvoice.setInvoicenumber(anInvoice.getInvoicenumber());
+        newInvoice.setInvoiceType(anInvoice.getType());
         newInvoice.setAmount(anInvoice.getAmount());
         newInvoice.setDuedate(anInvoice.getDuedate());
         newInvoice.setIssuedate(anInvoice.getIssuedate());
@@ -56,13 +60,21 @@ public class InvoiceUtility {
         newInvoice.setMembershipchargeCollection(new HashSet());
         newInvoice.setCustomerIsAttendingEventCollection(new HashSet());
         newInvoice.setNotes(anInvoice.getNotes());
+        if (anInvoice.getReceiptCollection() == null)
+            System.out.println("receipts == null");
+        else
+            System.out.println("Setting receipts on invoice entity "+anInvoice.getReceiptCollection().size());
+        newInvoice.setReceiptCollection(ReceiptUtility.getAsEntity(anInvoice.getReceiptCollection()));
 
         return newInvoice;
     }
 
     public static Collection<Invoice> getAsEntity(Collection<InvoiceTO> invoices) {
         Collection<Invoice> newInvoices = new ArrayList();
-
+        
+        if (invoices == null) {
+            System.out.println("invoice collection is null - InvoiceUtility");
+        } else
         for (InvoiceTO eachInvoice : invoices) {
             newInvoices.add(getAsEntity(eachInvoice));
         }

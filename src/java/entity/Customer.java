@@ -51,10 +51,13 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Customer.findByGiftAid", query = "SELECT c FROM Customer c WHERE c.giftAid = :giftAid")})
 public class Customer implements Serializable {
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "customer", optional = true)
+    private NotificationPreferences notificationPreferences;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
     private Collection<Visit> visitCollection;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "customer")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "customer", optional = true)
     private Refuse refuse;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
@@ -351,6 +354,14 @@ public class Customer implements Serializable {
 
     public void setVisitCollection(Collection<Visit> visitCollection) {
         this.visitCollection = visitCollection;
+    }
+
+    public NotificationPreferences getNotificationPreferences() {
+        return notificationPreferences;
+    }
+
+    public void setNotificationPreferences(NotificationPreferences notificationPreferences) {
+        this.notificationPreferences = notificationPreferences;
     }
     
 }

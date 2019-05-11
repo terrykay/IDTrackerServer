@@ -44,6 +44,10 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Invoice.findByNotes", query = "SELECT i FROM Invoice i WHERE i.notes = :notes")})
 public class Invoice implements Serializable {
 
+    @Size(max = 12)
+    @Column(name = "invoice_type")
+    private String invoiceType;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoiceInvoicenumber")
     private Collection<VisitHasInvoice> visitHasInvoiceCollection;
 
@@ -73,7 +77,7 @@ public class Invoice implements Serializable {
     private Collection<Electricitycharge> electricitychargeCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoiceInvoicenumber")
     private Collection<Receipt> receiptCollection;
-    @OneToMany(mappedBy = "invoicenumber")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoicenumber")
     private Collection<CustomerIsAttendingEvent> customerIsAttendingEventCollection;
 
     public Invoice() {
@@ -191,6 +195,14 @@ public class Invoice implements Serializable {
 
     public void setVisitHasInvoiceCollection(Collection<VisitHasInvoice> visitHasInvoiceCollection) {
         this.visitHasInvoiceCollection = visitHasInvoiceCollection;
+    }
+
+    public String getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(String invoiceType) {
+        this.invoiceType = invoiceType;
     }
     
 }

@@ -24,6 +24,7 @@ public class VisitUtility {
         newVisit.setStartDate(aVisit.getStartDate());
         newVisit.setEndDate(aVisit.getEndDate());
         newVisit.setUnitId(UnitUtility.getAsTO(aVisit.getUnitId()));
+        newVisit.setType(aVisit.getType());
 
         return newVisit;    
     }
@@ -38,6 +39,10 @@ public class VisitUtility {
  
         
     public static Visit getAsEntity(VisitTO aVisit) {
+        
+        System.out.println("VisitTO : "+aVisit.getId());
+        System.out.println("VisitTO : "+aVisit.getCustomerId());
+        
         Visit newVisit = new Visit();
         if (aVisit==null) 
             return newVisit;
@@ -46,6 +51,7 @@ public class VisitUtility {
         newVisit.setStartDate(aVisit.getStartDate());
         newVisit.setEndDate(aVisit.getEndDate());
         newVisit.setUnitId(UnitUtility.getAsEntity(aVisit.getUnitId()));
+        newVisit.setType(aVisit.getType());
 
         return newVisit;    
     }

@@ -37,6 +37,7 @@ public class MembershipUtility {
         newMembership.setSwipeCardId(aMembership.getSwipeCardId());
         newMembership.setType(aMembership.getType());
         newMembership.setWinterStorage(aMembership.getWinterStorage());
+        newMembership.setInsuranceExpiry(aMembership.getInsuranceExpiry());
 
         return newMembership;
     }
@@ -63,6 +64,7 @@ public class MembershipUtility {
         newMembership.setSwipeCardId(aMembership.getSwipeCardId());
         newMembership.setType(aMembership.getType());
         newMembership.setWinterStorage(aMembership.getWinterStorage());
+        newMembership.setInsuranceExpiry(aMembership.getInsuranceExpiry());
 
         return newMembership;
 

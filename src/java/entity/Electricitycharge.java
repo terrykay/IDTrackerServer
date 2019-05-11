@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,7 +66,7 @@ public class Electricitycharge implements Serializable {
     @JoinTable(name = "electricitycharge_has_invoice", joinColumns = {
         @JoinColumn(name = "electricitycharge_id", referencedColumnName = "id")}, inverseJoinColumns = {
         @JoinColumn(name = "invoice_invoicenumber", referencedColumnName = "invoicenumber")})
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private Collection<Invoice> invoiceCollection;
     @JoinColumn(name = "membership_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -140,6 +141,7 @@ public class Electricitycharge implements Serializable {
     }
 
     public void setMembershipId(Membership membershipId) {
+        System.out.println("ElectricitCharge.setMemId : "+membershipId);
         this.membershipId = membershipId;
     }
 

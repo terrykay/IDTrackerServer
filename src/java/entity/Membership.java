@@ -48,6 +48,10 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Membership.findByWinterStorage", query = "SELECT m FROM Membership m WHERE m.winterStorage = :winterStorage")})
 public class Membership implements Serializable {
 
+    @Column(name = "insurance_expiry")
+    @Temporal(TemporalType.DATE)
+    private Date insuranceExpiry;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "membershipId")
     private Collection<Caravan> caravanCollection;
 
@@ -256,6 +260,14 @@ public class Membership implements Serializable {
 
     public void setCaravanCollection(Collection<Caravan> caravanCollection) {
         this.caravanCollection = caravanCollection;
+    }
+
+    public Date getInsuranceExpiry() {
+        return insuranceExpiry;
+    }
+
+    public void setInsuranceExpiry(Date insuranceExpiry) {
+        this.insuranceExpiry = insuranceExpiry;
     }
     
 }

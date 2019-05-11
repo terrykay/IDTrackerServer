@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -37,8 +38,13 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Visit.findAll", query = "SELECT v FROM Visit v"),
     @NamedQuery(name = "Visit.findByIdvisit", query = "SELECT v FROM Visit v WHERE v.idvisit = :idvisit"),
     @NamedQuery(name = "Visit.findByStartDate", query = "SELECT v FROM Visit v WHERE v.startDate = :startDate"),
+    @NamedQuery(name = "Visit.findByStartBetween", query = "SELECT v FROM Visit v WHERE v.startDate BETWEEN :startDate AND :endDate"),
     @NamedQuery(name = "Visit.findByEndDate", query = "SELECT v FROM Visit v WHERE v.endDate = :endDate")})
 public class Visit implements Serializable {
+
+    @Size(max = 45)
+    @Column(name = "type")
+    private String type;
 
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -141,6 +147,14 @@ public class Visit implements Serializable {
 
     public void setCustomerId(Customer customerId) {
         this.customerId = customerId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
 }
